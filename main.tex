@@ -1,0 +1,358 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{quiver}
+
+\usepackage{biblatex}
+\addbibresource{bib.bib}
+
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\title{Characterizing KL Divergence}
+\author{Hudson Cooper}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+For any pair of probability measures $p$ and $q$ on a finite set $X$, the entropy of $p$ relative to $q$ is defined as:
+\begin{equation*}
+    I(p || q) = \sum_{x\in X} p_x \ln \frac{p_x}{q_x} \in [0, \infty]\,,
+\end{equation*}
+where $p_x \ln \frac{p_x}{q_x}$ takes the value $\infty$ if $q_x = 0$ unless $p_x$ is also $0$, in which case it takes the value $0$.
+
+In the language of Bayesian probability, the relative entropy (also know as the ``relative information'', ``information gain'' or the ``Kullback-Leibler divergence'') gives the average amount of information gained by observing samples from the distribution $p$ if the prior belief is held that the samples are generated from $q$.
+
+Several axiomatic characterizations of the relative entropy have been constructed. Baez and Fritz \cite{baezBayesianCharacterizationRelative2014} provide a category-theoretic characterization in terms of a Bayesian inference problem. 
+
+This paper borrows heavily from the techniques used by Baez and Fritz \cite{baezBayesianCharacterizationRelative2014} and the results of Leinster \cite{leinsterShortCharacterizationRelative2017} and Kannappan and Ng \cite{kannappanMeasurableSolutionsFunctional1973} to provide a new characterization for the relative entropy from the perspective of stochastic dynamical systems.
+
+\subsection{Information theory and dynamics}
+
+The relative entropy has found a central role in modern non-equilibrium thermodynamics. The relative entropy of a non-equilibrium distribution to the equilibrium distribution under the action of that system's dynamics is proportional to the so-called ``non-equilibrium free energy'' \cite{gaveauGeneralFrameworkNonequilibrium1997, shawDrippingFaucetModel1984}, which is the average amount of work that can be extracted from the non-equilibrium system as it relaxes to equilibrium. The time-derivative of this quantity under system dynamics is also directly related to the minimum amount of work required to maintain a target non-equilibrium distribution \cite{horowitzMinimumEnergeticCost2017}.
+
+Recent work \cite{baezCharacterizationEntropyTerms2011, baezBayesianCharacterizationRelative2014, fullwoodInformationLossStochastic2021} has used the language of category theory to axiomatically derive the entropy, relative entropy, and conditional entropy as the unique functions that, when applied to certain classes of objects, satisfy a short list of reasonable conditions such as composability, additivity, homogeneity, and continuity.
+
+Although \cite{baezBayesianCharacterizationRelative2014} derived the relative entropy with such an axiomatic approach, it specifically did so in the context of Bayesian inference. The present work seeks to compliment this result by deriving the quantity from the framework of stochastic dynamical systems
+
+Dynamical systems theory concerns the way that mappings (``system dynamics'') transform states (the ``past'') into new states (``the future'') as they are iteratively applied. 
+
+\section{Statement of the main result}
+Consider the category \texttt{FinData} where an object $(X, p, q)$ is given by a finite set $X$ and a pair of measures $p$ and $q$ on that set, and where a morphism $f:(X, p, q) \rightarrow (Y, u, v)$ is a measure-preserving stochastic map that assigns a probability distribution over $Y$ for each $x\in X$. We write $f_{yx}$ to denote the probability of $y$ given $x$ for any pair $x\in X, y\in Y$. In particular, we have
+$$
+u_y = \sum_{x\in X} f_{yx}p_x\,,
+\qquad v_y = \sum_{x\in X} f_{yx}q_x\,.
+$$
+The condition that $f$ is measure-preserving says that 
+$$
+    \sum_{y\in Y} f_{yx} = 1 \ \forall x\in X\,,
+$$
+which gives us that total measures are preserved by the map, where for any measure $r$ on domain $Z$, we define the \textit{total measure} of $r$ to be
+$$
+||r|| = \sum_{z\in Z} r_z\,.
+$$
+In particular, we have that $||p|| = ||u||$ and $||q|| = ||v||$.
+
+In what follows, we will refer to the first measure $p$ of any object $(X, p, q)$ as the ``primary measure'' and the second measure $q$ as the ``reference measure''.
+
+\subsection{Statement of the main result}
+Up to a scalar constant $c$, the change in KL divergence between the primary and reference measures is the unique map $F$ from morphisms in \texttt{FinData} to the additive monoid $[0, \infty]$ that satisfies the following properties:
+\begin{enumerate}
+    \item \textbf{Functorality}:
+      $$
+      F(f \circ g) = F(f) + F(g)
+      $$
+      $\quad$whenever $f$ and $g$ are composable morphisms.
+      
+    \item \textbf{Convex linearity}: NOTE: this should probably be split into additivity and ($\alpha$- ?)homogeneity  -- \textit{convex} linearity is only really needed if we are restricted to \textit{probability} measures.
+      $$
+        F(\lambda f \oplus (1-\lambda)g) = \lambda F(f) + (1 - \lambda)F(g)\,.
+      $$
+    \item \textbf{Lower semicontinuity}: $F$ is lower semicontinuous.
+    \item \textbf{Scale-invariance to the reference measure}: $F$ is invariant to arbitrary re-scaling of the reference measure. In particular, for any morphism $f:(X, p, q) \rightarrow (Y, u, v)$, we have that 
+      $$
+        F(f) = F(f_\lambda)
+      $$
+    where $f_\lambda$ is the morphism $f:(X, p, \lambda q) \rightarrow (Y, u, \lambda v)$ for any scalar $\lambda > 0$. This final condition is the most non-trivial, but it can be thought of as breaking a symmetry between the primary and reference measures, allowing the KL divergence to be identified, e.g. as opposed to the reverse KL.
+\end{enumerate}
+
+Our claim is that, up to a positive constant $c \geq 0$, these properties are uniquely satisfied by 
+\begin{equation} \label{claim}
+    F(f) = c(KL[p \mid\mid q] - KL[u \mid\mid v])
+\end{equation}
+where
+$$
+ KL[p \mid\mid q] = \sum_{x\in X} p_x \ln \frac{p_x}{q_x}\,,
+$$
+and we define $p_x\ln \frac{p_x}{q_x} = \infty$ if $q_x = 0$, $p_x\neq 0$, and $\ln p_x\frac{p_x}{q_x} = 0$ if both $p_x = 0$, $q_x = 0$.
+
+\section{$F$ satisfies properties (1-4)}
+First, we note that $F$ written in equation \eqref{claim} is indeed a map from morphisms in \textttt{FinData} to $[0, \infty]$ as a result of the generalized data-processing lemma proven in \cite{cohenRelativeEntropyMappings1993}. In particular, for any distributions $p$, $q$ with the same finite support and any column-stochastic matrix $A$, 
+$$
+    KL(Ap || Aq) \leq KL(p, q)\,.
+$$
+
+\subsection{Functorality}
+\begin{lemma}
+$F$ is a functor.
+\end{lemma}
+
+\begin{proof}
+For any two composable morphisms $f:(X, p, q) \rightarrow (Y, u, v)$ and $g:(Y, u, v) \rightarrow (Z, s, t)$, we have 
+\begin{align*}
+  F(g \circ f) &= KL[p \mid\mid q] - KL[s \mid\mid t]\\
+  &= KL[p \mid\mid q] - KL[u \mid\mid v] \\
+  &\quad + KL[u \mid\mid v] - KL[s \mid\mid t] \\
+  &= F(f) + F(g)\,,
+\end{align*}
+as needed.
+\end{proof}
+
+
+\subsection{Convex Linearity}
+Let $(X, p)$ and $(Y, u)$ be a pair of finite sets equipped with measures, and let $\lambda \in [0,1]$. Then there is a measure $\lambda p \oplus (1-\lambda)u$ on the disjoint union $X + Y$ such that
+$$
+  (\lambda p \oplus (1-\lambda)u)_k = \begin{cases}
+    \lambda p_k &\text{if } k\in X,\\
+    (1-\lambda) u_k &\text{if } k\in Y.\\
+  \end{cases}
+$$
+Given a pair of morphisms
+$$
+f:(X, p, q) \rightarrow (X', p', q'), \qquad g:(Y, u, v) \rightarrow (Y', u', v')
+$$
+in $\texttt{FinData}$, there is a  morphism
+\begin{align*}
+\lambda f \oplus (1-\lambda) g:
+&\ (X + Y, \ \lambda p \oplus (1-\lambda)u, \ \lambda q \oplus (1-\lambda)v)\\ \rightarrow& (X' + Y', \ \lambda p' \oplus (1-\lambda)u', \ \lambda q' \oplus (1-\lambda)v')
+\end{align*}
+that restricts to $f$ on $X$ and $g$ on $Y$.
+
+Convex linearity of a functor $F$ says that 
+$$F
+(\lambda f \oplus (1-\lambda) g) = \lambda F(f) + (1-\lambda) F(g)\,.
+$$
+
+\begin{lemma}
+The map $F:\texttt{FinData}\rightarrow[0, \infty]$ given by
+$$
+(f:(X, p, q) \rightarrow (Y, u, v)) \mapsto KL[p \mid\mid q] - KL[u \mid\mid v]
+$$
+is convex linear.
+\end{lemma}
+
+\begin{proof}
+Follows from direct computation.
+Given a pair of morphisms
+$$
+f:(X, p, q) \rightarrow (X', p', q'), \qquad g:(Y, u, v) \rightarrow (Y', u', v')\,,
+$$
+we have
+\begin{align*}
+  F(\lambda f \oplus (1-\lambda) g)
+  &= KL[\lambda p \oplus (1-\lambda)u \mid\mid \lambda q \oplus (1-\lambda)v)] \\
+  & - KL[ \lambda p' \oplus (1-\lambda)u' \mid\mid \lambda q' \oplus (1-\lambda)v'] \\
+  \\
+  &= \left[\sum_{x\in X} \lambda p_x \ln \frac{\lambda p_x}{\lambda q_x}  + \sum_{y\in Y} (1-\lambda) u_y \ln \frac{(1-\lambda) u_y}{(1-\lambda) v_y}\right]\\
+  & - \left[\sum_{x\in X}\lambda p'_x \ln \frac{\lambda p'_x}{\lambda q'_x} +  \sum_{y\in Y}(1-\lambda)u'_y \ln \frac{(1-\lambda) u'_y}{(1-\lambda) v'_y}\right]\\
+  \\
+  &= \lambda \sum_{x\in X} \left[p_x \ln \frac{p_x}{q_x} -  p'_x \ln \frac{p'_x}{q'_x} \right]\\
+  &+ (1-\lambda) \sum_{y\in Y} \left[u_y \ln \frac{u_y}{v_y} - u'_y \ln \frac{u'_y}{v'_y} \right]\\
+  \\
+  &= \lambda \left(KL[p \mid\mid q] - KL[p' \mid\mid q']\right)\\
+  & - (1-\lambda) \left(KL[u \mid\mid v] - KL[u' \mid\mid v']\right) \\
+  \\
+  &= \lambda F(f) + (1-\lambda) F(g)
+\end{align*}
+as needed.
+\end{proof}
+
+\subsection{Lower Semicontinuity}
+TODO
+
+\subsection{Scale-invariance to the reference measure}
+\begin{lemma}
+    The change in KL divergence is invariant to arbitrary re-scaling of the reference measure.
+\end{lemma}
+\begin{proof}
+For any morphism $f:(X, p, q) \rightarrow (Y, u, v)$, let $f_\lambda$ be the morphism $f_\lambda:(X, p, \lambda q) \rightarrow (Y, u, \lambda v)$ for any scalar $\lambda > 0$. Let $F(f) = KL[p \mid\mid q] - KL[u \mid\mid v]$. The proof follows by direct computation:
+\begin{align*}
+    F(f_\lambda) &= KL[p \mid\mid \lambda q] - KL[u \mid\mid \lambda v]\\
+    &= \sum_{x\in X} p_x \ln \frac{p_x}{\lambda q_x} - \sum_{y\in Y} u_y \ln \frac{u_y}{\lambda v_y}\\
+    &= \left(\sum_{x\in X} p_x \ln \frac{p_x}{q_x} - ||p||\ln\lambda\right) - \left(\sum_{y\in Y} u_y \ln \frac{u_y}{ v_y} - ||u||\ln\lambda\right)\\
+    &= \sum_{x\in X} p_x \ln \frac{p_x}{q_x} - \sum_{y\in Y} u_y \ln \frac{u_y}{v_y} - \underbrace{\left(||p||\ln\lambda - ||u||\ln\lambda\right)}_{= \ 0 \text{ since } ||p|| = ||u||}\\
+    &= F(f)\,.
+\end{align*}
+\end{proof}
+
+\section{Properties (1-4) imply $F$}
+
+\begin{definition}
+    Let \texttt{FD} be the subcategory of \texttt{FinData} where an object $(X, p, \lambda p)$ is given by a finite set $X$ and a pair of measures $p, \lambda p$ that are equivalent up to an arbitrary scale $\lambda > 0$.
+\end{definition}
+
+\begin{lemma}
+Any functor $F:\texttt{FinData}\rightarrow [0, \infty]$ vanishes on morphisms in the sub-category \texttt{FD}.
+\end{lemma}
+\begin{proof}
+Let $f:(X, p, \lambda p)\rightarrow(Y, u, \lambda u)$ be a morphism in \texttt{FD}. Let $\mathbf{1}$ be any one-element set, and let us denote measures on that set as scalars. Then the following diagram commutes:
+\[\begin{tikzcd}
+	{(X, p, \lambda p)} && {(Y, u, \lambda u)} \\
+	\\
+	{(\mathbf{1}, ||p||, \lambda||p||)} && {}
+	\arrow["f", squiggly, from=1-1, to=1-3]
+	\arrow["p/||p||", squiggly, from=3-1, to=1-1]
+	\arrow["{!_Y}", from=1-3, to=3-1]
+\end{tikzcd}\]
+where $!_Y:Y\rightarrow \mathbf{1}$ is the unique measure-preserving function from $Y$ to $\mathbf{1}$. Note that we here mark stochastic maps with squiggly lines, but we use straight lines to mark deterministic functions. Because $F$ is functorial and $0$ is the only element of $[0, \infty]$ with an inverse, each morphism in the diagram, including the generic $f:(X, p, \lambda p)\rightarrow(Y, u, \lambda u)$, must vanish.
+\end{proof}
+
+\begin{corollary} 
+Given any morphism $f:(X, p, q)\rightarrow(Y, u, \lambda u)$ from an object $(X, p, q)$ in \texttt{FinData} to an object $(Y, u, \lambda u)$ in \texttt{FD}, we have
+$$
+F\left(
+    \begin{tikzcd}[ampersand replacement=\&]
+    	{(X, p, q)} \&\& {(Y, u, \lambda u)}
+    	\arrow["f", squiggly, from=1-1, to=1-3]
+    \end{tikzcd}
+\right)
+= 
+F\left(
+    \begin{tikzcd}[ampersand replacement=\&]
+    	{(X, p, q)} \&\& {(\mathbf{1}, ||p||, ||q||)}
+    	\arrow["!_X", from=1-1, to=1-3]
+    \end{tikzcd}
+\right)\,,
+$$
+i.e., the value of $F$ on the morphism depends only on the measures $p$ and $q$ living on the morphism's domain.
+\end{corollary}
+
+\begin{lemma}
+    The value of any functor $F:\texttt{FinData}\rightarrow [0, \infty]$ evaluated on a morphism $f:(X, p, q)\rightarrow(Y, u, v)$ can be written as $G((X, p, q)) - G((Y, u, v))$ for some function $G$ mapping objects in \texttt{FinData} to $[0, \infty]$.
+\end{lemma}
+\begin{proof}
+Given any morphism $f:(X, p, q)\rightarrow(Y, u, v)$ in \texttt{FinData}, we can form the diagram:
+\[\begin{tikzcd}
+	{(X, p, q)} && {(Y, u, v)} \\
+	\\
+	& {(\mathbf{1}, ||p||, ||q||)}
+	\arrow["f", squiggly, from=1-1, to=1-3]
+	\arrow["{!_X}"', from=1-1, to=3-2]
+	\arrow["{!_Y}", from=1-3, to=3-2]
+\end{tikzcd}\]
+Because the diagram commutes and $F$ is a functor, we have 
+\begin{align*}
+F\left(
+    \begin{tikzcd}[ampersand replacement=\&]
+    	{(X, p, q)} \&\& {(Y, u, v)}
+    	\arrow["f", squiggly, from=1-1, to=1-3]
+    \end{tikzcd}
+\right)
+&= 
+F\left(
+    \begin{tikzcd}[ampersand replacement=\&]
+    	{(X, p, q)} \&\& {(\mathbf{1}, ||p||, ||q||)}
+    	\arrow["!_X", squiggly, from=1-1, to=1-3]
+    \end{tikzcd}
+\right)
+\\
+&-
+F\left(
+    \begin{tikzcd}[ampersand replacement=\&]
+    	{(Y, u, v)} \&\& {(\mathbf{1}, ||u||, ||v||)}
+    	\arrow["!_Y", squiggly, from=1-1, to=1-3]
+    \end{tikzcd}
+\right)\,.
+\end{align*}
+Letting 
+$$
+G((X, p, q)) \equiv
+F\left(
+    \begin{tikzcd}[ampersand replacement=\&]
+    	{(X, p, q)} \&\& {(\mathbf{1}, ||p||, ||q||)}
+    	\arrow["!_X", squiggly, from=1-1, to=1-3]
+    \end{tikzcd}
+\right)
+$$
+gives us the desired result.
+\end{proof}
+To simplify notation in what follows, we will write $G((X, p, q))$ as $G(p, q)$, dropping the explicit dependence of $G$ on the shared domain $X$ of the measures $p$ and $q$.
+
+\begin{corollary}
+    $G$ is invariant to the scale of the reference distribution. Namely, $G(p, q) = G(p, \lambda q) \ \forall \lambda > 0$.
+\end{corollary}
+\begin{proof}
+    This follows directly from the definition of $G$ as the value of $F$ on a particular morphism.
+\end{proof}
+
+\begin{lemma} \label{vanishes_on_permutations}
+    Any functor $F:\texttt{FinData}\rightarrow [0, \infty]$ vanishes on permutations. Namely, for any permutation $\sigma$ of $X$, $F(\sigma: (X, p, q) \rightarrow (\sigma X, \sigma \circ p, \sigma \circ q)) = 0$.
+\end{lemma}
+\begin{proof}
+    Any permutation $\sigma$ admits an inverse $\sigma^{-1}$. Since $0$ is the only element of $[0, \infty]$ with an inverse, $F(\sigma)$ must be $0$.
+\end{proof}
+\begin{corollary}
+    $G$ is permutation invariant. Namely, $G(\sigma\circ p, \sigma\circ q) = G(p, q)$ for any permutation $\sigma$.
+\end{corollary}
+\begin{proof}
+    Let $\sigma: (X, p, q) \rightarrow (\sigma X, \sigma \circ p, \sigma \circ q)$ be a permutation. Then by lemma \ref{vanishes_on_permutations}, we have that $F(\sigma) = 0$. But by the definition of $G$, we also have that $F(\sigma) = G(p, q) - G(\sigma \circ p, \sigma \circ q)$, which implies that $G(\sigma \circ p, \sigma \circ q) = G(p, q)$, as needed.
+\end{proof}
+
+\begin{lemma}
+    If the functor $F$ is convex linear and invariant to arbitrary re-scaling of the reference distribution, then $G(p, q)$ satisfies a ``chain rule''.
+    
+    Given a pair of measures $w$ and $\pi$ on $\mathbf{n} = \{{1, \ldots, n}\}$ together with measures $p(1), \ldots, p(n)$ and $q(1), \ldots q(n)$ on finite sets $X_1, \ldots X_n$ respectively, we have a pair of measures $\bigoplus_i w_i p(i)$ and $\bigoplus_i \pi_i q(i)$ on the disjoint union $\bigoplus_i X_i$. Then:
+    \begin{equation} \label{chainrule}
+        G\left(\bigoplus_i w_i p(i), \bigoplus_i \pi_i q(i)\right) = G(w, \pi) + \sum_i w_i G(p(i), q(i))\,.
+    \end{equation}
+\end{lemma}
+
+\begin{proof}
+    NOTE: this proof only works if $w_i > 0 \ \forall i$... need to fix that. Invoking continuity should do the trick I think.
+    
+    Without loss of generality, let $p(i), q(i)$ be \textit{probability} measures, i.e. $||p(i)|| = ||q(i)|| = 1 \ \forall i$, absorbing any scale terms into $w$ and $\pi$. Consider the morphism
+    $$
+        f:\left(\bigoplus_i X_i, \bigoplus_i w_i p(i), \bigoplus_i \pi_i q(i)\right) \rightarrow (\mathbf{n}, w, \pi)\,.
+    $$
+    Let us write $\bigoplus_i \pi_i q(i)$ as $\bigoplus_i w_i (\frac{\pi_i}{w_i} q(i))$. Then we have that $f = \bigoplus_i w_i !_{X_i}$, where
+    $$
+        \bigoplus_i w_i !_{X_i}: \left(\bigoplus_i X_i, \bigoplus_i w_i p(i), \bigoplus_i w_i \left(\frac{\pi_i}{w_i} q(i)\right)\right) \rightarrow (\mathbf{n}, w, \pi)\,,
+    $$
+    and
+    $$
+        !_{X_i}: \left(X_i, p(i), \frac{\pi_i}{w_i}q(i)\right) \rightarrow \left(\mathbf{1}, 1, \frac{\pi_i}{w_i}\right)\,.
+    $$
+    By definition of $G$ and its invariance to the scale of the reference distribution, we have
+    $$
+        F(!_{X_i}) = G(p(i), \frac{\pi_i}{w_i}q(i)) = G(p(i), q(i))\,.
+    $$
+    Then by convex linearity of $F$, we have
+    \begin{equation} \label{chainrule1}
+        F(f) = \sum_i w_i F(!_{X_i}) = \sum_i w_i G(p(i), q(i))\,.
+    \end{equation}
+    On the other hand, we have that 
+    \begin{equation} \label{chainrule2}
+        F(f) = G\left(\bigoplus_i w_i p(i), \bigoplus_i \pi_i q(i)\right) - G(w, \pi)\,.
+    \end{equation}
+    By equality of equations \eqref{chainrule1} and \eqref{chainrule2}, we have 
+    \begin{equation*}
+        G\left(\bigoplus_i w_i p(i), \bigoplus_i \pi_i q(i)\right) = G(w, \pi) +  \sum_i w_i G(p(i), q(i))\,,
+    \end{equation*}
+    which matches equation \eqref{chainrule} as needed.
+\end{proof}
+
+\begin{theorem}
+    The main result! With the chain rule and permutation invariance of $G$ under our belt, it essentially follows from \cite{leinsterShortCharacterizationRelative2017}... need a little more work to get there though!
+\end{theorem}
+
+\printbibliography
+
+\end{document}
